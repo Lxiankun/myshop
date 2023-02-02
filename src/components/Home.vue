@@ -9,8 +9,46 @@
         <el-button type="info" @click="loginOut">退出登录</el-button>
       </el-header>
       <el-container>
-        <el-aside width="200px">Aside</el-aside>
-        <el-main>Main</el-main>
+        <el-aside :width="isCollapse ? '64px' : '200px'">
+          <!-- 折叠 -->
+          <div class="toggle_btn" @click="toggleCollapse">|||</div>
+          <el-menu
+            class="el-menu-vertical-demo"
+            background-color="#313743"
+            text-color="#fff"
+            active-text-color="#409EFF"
+            unique-opened
+            :collapse-transition="false"
+            router
+            :default-active="pathState"
+            :collapse="isCollapse"
+          >
+            <el-submenu
+              :index="`${item01.id}`"
+              v-for="item01 in menuList"
+              :key="item01.id"
+            >
+              <template slot="title">
+                <i :class="iconsObj[item01.id]"></i>
+                <span>{{ item01.authName }}</span>
+              </template>
+              <el-menu-item
+                :index="`/${item02.path}`"
+                v-for="item02 in item01.children"
+                :key="item02.id"
+                @click="saveNavPath(`/${item02.path}`)"
+              >
+                <template slot="title">
+                  <i class="el-icon-menu"></i>
+                  <span>{{ item02.authName }}</span>
+                </template>
+              </el-menu-item>
+            </el-submenu>
+          </el-menu>
+        </el-aside>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
       </el-container>
     </el-container>
   </div>
@@ -20,7 +58,19 @@ export default {
   components: {},
   props: {},
   data() {
-    return {};
+    return {
+      menuList: [],
+      iconsObj: {
+        125: "iconfont icon-users",
+        103: "iconfont icon-tijikongjian",
+        101: "iconfont icon-shangpin",
+        102: "iconfont icon-danju",
+        145: "iconfont icon-baobiao",
+      },
+      pathState: "",
+      // 是否折叠
+      isCollapse: false,
+    };
   },
   computed: {},
   watch: {},
@@ -30,9 +80,27 @@ export default {
       window.sessionStorage.removeItem("token");
       this.$router.push("/login");
     },
+    async getMenuData() {
+      const { data: res } = await this.$http.get("menus");
+      if (res.meta.status != 200) {
+        return this.$message.error("获取菜单数据失败");
+      }
+      this.menuList = res.data;
+      // console.log(this.menuList);
+    },
+    saveNavPath(navState) {
+      window.sessionStorage.setItem("pState", navState);
+      this.pathState = navState;
+    },
+    toggleCollapse() {
+      this.isCollapse = !this.isCollapse;
+    },
   },
   created() {},
-  mounted() {},
+  mounted() {
+    this.getMenuData();
+    this.pathState = window.sessionStorage.getItem("pState");
+  },
 };
 </script>
 <style lang='less' scoped>

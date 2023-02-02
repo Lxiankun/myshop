@@ -1,6 +1,13 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+//  引入Echarts
+import * as echarts from 'echarts'
+Vue.prototype.$echarts = echarts
+// 引入tree_gird
+import treetable from 'vue-table-with-tree-grid'
+// icfont
+import '@/assets/fonts/iconfont/iconfont.css'
 // element ui
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -32,6 +39,7 @@ axios.interceptors.response.use(function (response) {
 
 Vue.use(VueAxios, axios)
 Vue.use(ElementUI);
+Vue.component('tree-table', treetable);
 Vue.config.productionTip = false
 new Vue({
   router,
